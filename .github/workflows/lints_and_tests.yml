@@ -2,6 +2,10 @@ name: Lints and Tests
 
 on: [push, pull_request]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Test (Python ${{ matrix.python-version }} on ${{ matrix.os }})
