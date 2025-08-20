@@ -58,13 +58,13 @@ wordatlas web --host 0.0.0.0 --port 8000
 
 ## CLI commands and flags
 
-Commands:
+### Commands:
 
 - `wordatlas list WORD` — build the graph and print a relation summary table (or `--json-out`)
 - `wordatlas show WORD` — print a compact JSON-like summary (center, counts, samples)
 - `wordatlas graph WORD` — render a Graphviz image and optional CSV/JSON exports
 
-Common flags:
+### Common flags:
 
 - `--depth INT` — overall expansion depth (default from env; see Configuration)
 - `--max-nodes INT` — cap total nodes in the graph
