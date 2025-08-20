@@ -1,0 +1,125 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "wordatlas"
+version = "0.1.0"
+description = "Interactive semantic maps (WordNet) via CLI and web"
+authors = [{ name = "Soumyadip Sarkar" }]
+readme = "README.md"
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+keywords = ["wordnet", "nlp", "graph", "fastapi", "cli", "cytoscape"]
+classifiers = [
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: Apache Software License",
+    "Environment :: Console",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+
+dependencies = [
+"fastapi>=0.111",
+"uvicorn[standard]>=0.29",
+"pydantic>=2.7",
+"typer>=0.12",
+"rich>=13.7",
+"nltk>=3.9",
+"graphviz>=0.20",
+"orjson>=3.10",
+]
+
+
+[project.optional-dependencies]
+dev = [
+"pytest>=8.0",
+"httpx>=0.27",
+"ruff>=0.6",
+"black>=24.4",
+"mypy>=1.10",
+"isort>=5.13",
+]
+
+
+[project.scripts]
+wordatlas = "wordatlas.cli:app"
+
+
+[project.urls]
+Homepage = "https://github.com/neuralsorcerer/WordAtlas"
+Issues = "https://github.com/neuralsorcerer/WordAtlas/issues"
+
+
+[tool.black]
+line-length = 100
+
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+
+# Per-module overrides
+[[tool.mypy.overrides]]
+module = ["nltk", "nltk.*", "graphviz", "graphviz.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["tests", "tests.*"]
+# Relax strictness for tests
+# Turn off strict checks that cause test typing noise
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_calls = false
+check_untyped_defs = false
+warn_unused_ignores = false
+
+
+[tool.pytest.ini_options]
+addopts = "-q"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = [""]
+include = ["wordatlas*"]
+
+[tool.setuptools.package-data]
+"wordatlas.api" = ["static/**/*"]
+
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_first_party = ["wordatlas"]
+# known_third_party can help stable grouping, but is optional
+known_third_party = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "typer",
+    "rich",
+    "nltk",
+    "graphviz",
+    "orjson",
+    "httpx",
+]

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WordAtlas</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>WordAtlas</h1>
+        <form id="searchForm">
+          <input
+            id="word"
+            class="input"
+            type="text"
+            placeholder="Enter a word (e.g., happiness)"
+          />
+          <label
+            >Depth
+            <input
+              id="depth"
+              class="input"
+              type="number"
+              min="0"
+              max="5"
+              value="1"
+          /></label>
+          <button type="submit" class="button" id="buildBtn" disabled>
+            Build Graph
+          </button>
+          <div class="chips" id="examples">
+            <span class="chip" data-word="happiness">happiness</span>
+            <span class="chip" data-word="happy">happy</span>
+            <span class="chip" data-word="run">run</span>
+            <span class="chip" data-word="bright">bright</span>
+          </div>
+        </form>
+      </header>
+      <div class="toolbar">
+        <div class="status" id="status">Ready.</div>
+        <div class="legend">
+          <span class="item"><span class="dot n"></span> noun</span>
+          <span class="item"><span class="dot v"></span> verb</span>
+          <span class="item"><span class="dot a"></span> adj</span>
+          <span class="item"><span class="dot r"></span> adv</span>
+          <span class="item"><span class="dot center"></span> center</span>
+        </div>
+        <div
+          style="
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+          "
+        >
+          <label style="font-size: 12px; color: var(--muted)">
+            Label width
+            <input
+              id="labelWidth"
+              type="range"
+              min="80"
+              max="320"
+              value="160"
+            />
+          </label>
+          <label style="font-size: 12px; color: var(--muted)">
+            Font size
+            <input id="fontSize" type="range" min="8" max="20" value="12" />
+          </label>
+          <label style="font-size: 12px; color: var(--muted)">
+            Layout
+            <select id="layout">
+              <option value="cose" selected>CoSE</option>
+              <option value="breadthfirst">Breadthfirst</option>
+              <option value="concentric">Concentric</option>
+              <option value="grid">Grid</option>
+            </select>
+          </label>
+          <label style="font-size: 12px; color: var(--muted)"
+            ><input
+              type="checkbox"
+              class="relToggle"
+              data-rel="synonym"
+              checked
+            />
+            synonym</label
+          >
+          <label style="font-size: 12px; color: var(--muted)"
+            ><input
+              type="checkbox"
+              class="relToggle"
+              data-rel="antonym"
+              checked
+            />
+            antonym</label
+          >
+          <label style="font-size: 12px; color: var(--muted)"
+            ><input
+              type="checkbox"
+              class="relToggle"
+              data-rel="hypernym"
+              checked
+            />
+            hypernym</label
+          >
+          <label style="font-size: 12px; color: var(--muted)"
+            ><input
+              type="checkbox"
+              class="relToggle"
+              data-rel="hyponym"
+              checked
+            />
+            hyponym</label
+          >
+          <label style="font-size: 12px; color: var(--muted)"
+            ><input
+              type="checkbox"
+              class="relToggle"
+              data-rel="similar_to"
+              checked
+            />
+            similar_to</label
+          >
+        </div>
+      </div>
+      <main>
+        <div id="cy"></div>
+        <div id="loading"><div class="spinner"></div></div>
+      </main>
+      <footer>
+        <div class="footer-section footer-left">
+          <p>Tip: click nodes to re-center graph.</p>
+        </div>
+        <div class="footer-section footer-center">
+          Built with ❤️ by
+          <a
+            href="https://soumyadipsarkar.com/"
+            class="footer-link"
+            rel="noopener"
+            target="_blank"
+            >Soumyadip Sarkar</a
+          >
+        </div>
+        <div class="footer-section footer-right">
+          <a
+            href="https://wordnet.princeton.edu/"
+            target="_blank"
+            rel="noopener"
+            class="footer-link"
+            >WordNet</a
+          >
+        </div>
+      </footer>
+    </div>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
