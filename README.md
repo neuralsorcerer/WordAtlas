@@ -81,7 +81,7 @@ wordatlas web --host 0.0.0.0 --port 8000
   - `--json-out graph.json` — dump graph JSON
   - `--open` — open the rendered image
 
-Examples:
+### Examples:
 
 ```bash
 # Synonyms only, prune low-degree nodes, export CSV
