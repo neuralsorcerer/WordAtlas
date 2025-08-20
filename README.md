@@ -30,20 +30,6 @@ pip install -e .[dev]
 ## Quickstart
 
 ```bash
-# 1) Install system graphviz (for PNG/SVG/PDF rendering)
-# - Debian/Ubuntu: sudo apt-get update && sudo apt-get install -y graphviz
-# - macOS (brew): brew install graphviz
-# - Windows (choco): choco install graphviz -y
-
-# 2) Create venv and install
-python -m venv .venv
-# Activate:
-# - Linux/macOS: source .venv/bin/activate
-# - Windows PowerShell: .venv\Scripts\Activate.ps1
-pip install -e .
-
-# 3) First run downloads WordNet corpora automatically
-
 # CLI — quick checks
 wordatlas list happiness --depth 1 --json-out g.json   # write graph JSON
 wordatlas show happiness --depth 1                     # compact summary
