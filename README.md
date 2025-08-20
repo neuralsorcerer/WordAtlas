@@ -25,7 +25,7 @@ Optional dev extras:
 pip install -e .[dev]
 ```
 
-> Note: For PNG/SVG/PDF rendering you need the system Graphviz tool (`dot`). See Quickstart below.
+> Note: For PNG/SVG/PDF rendering you need the system Graphviz tool.
 
 ## Quickstart
 
