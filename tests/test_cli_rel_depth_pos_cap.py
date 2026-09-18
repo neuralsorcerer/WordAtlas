@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Optional
 
 from typer.testing import CliRunner
 
@@ -10,7 +9,7 @@ runner = CliRunner()
 
 def _fake_render(tmp_path: Path):
     # Lazily import in the closure if needed; avoid unused import at function top
-    def fake(self, filename: Optional[str] = None, cleanup: bool = True):
+    def fake(self, filename: str | None = None, cleanup: bool = True):
         out = Path(filename or (tmp_path / "graph")).with_suffix(".png")
         out.write_bytes(b"")
         return str(out)

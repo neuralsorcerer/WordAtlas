@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-from typing import Optional
 
 from typer.testing import CliRunner
 
@@ -28,7 +27,7 @@ def test_cli_show_runs():
 def test_cli_graph_exports_and_filters(monkeypatch, tmp_path: Path):
     from graphviz import Digraph
 
-    def fake_render(self, filename: Optional[str] = None, cleanup: bool = True):  # type: ignore[no-redef]
+    def fake_render(self, filename: str | None = None, cleanup: bool = True):  # type: ignore[no-redef]
         base = Path(filename or (tmp_path / "graph").as_posix())
         out_file = base.with_suffix("." + (self.format or "png"))
         out_file.write_bytes(b"")
@@ -73,7 +72,7 @@ def test_cli_graph_exports_and_filters(monkeypatch, tmp_path: Path):
 def test_cli_graph_stopwords_and_exclude(monkeypatch, tmp_path: Path):
     from graphviz import Digraph
 
-    def fake_render(self, filename: Optional[str] = None, cleanup: bool = True):  # type: ignore[no-redef]
+    def fake_render(self, filename: str | None = None, cleanup: bool = True):  # type: ignore[no-redef]
         base = Path(filename or (tmp_path / "graph").as_posix())
         out_file = base.with_suffix("." + (self.format or "png"))
         out_file.write_bytes(b"")
@@ -116,7 +115,7 @@ def test_cli_graph_stopwords_and_exclude(monkeypatch, tmp_path: Path):
 def test_cli_graph_rel_depth_and_pos_cap_flags(monkeypatch, tmp_path: Path):
     from graphviz import Digraph
 
-    def fake_render(self, filename: Optional[str] = None, cleanup: bool = True):  # type: ignore[no-redef]
+    def fake_render(self, filename: str | None = None, cleanup: bool = True):  # type: ignore[no-redef]
         base = Path(filename or (tmp_path / "graph").as_posix())
         out_file = base.with_suffix("." + (self.format or "png"))
         out_file.write_bytes(b"")

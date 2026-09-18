@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Optional
 
 from graphviz import Digraph
 
@@ -12,7 +11,7 @@ def test_to_graphviz_renders(monkeypatch, tmp_path: Path):
     edges = [Edge(source="center", target="x", relation="synonym")]
     g = Graph(center="center", nodes=nodes, edges=edges)
 
-    def fake_render(self: Digraph, filename: Optional[str] = None, cleanup: bool = True):
+    def fake_render(self: Digraph, filename: str | None = None, cleanup: bool = True):
         out = Path(filename or (tmp_path / "g")).with_suffix(".png")
         out.write_bytes(b"")
         return str(out)
@@ -34,7 +33,7 @@ def test_to_graphviz_relation_filter(monkeypatch, tmp_path: Path):
     ]
     g = Graph(center="c", nodes=nodes, edges=edges)
 
-    def fake_render(self: Digraph, filename: Optional[str] = None, cleanup: bool = True):
+    def fake_render(self: Digraph, filename: str | None = None, cleanup: bool = True):
         out = Path(filename or (tmp_path / "g")).with_suffix(".png")
         out.write_bytes(b"")
         return str(out)
