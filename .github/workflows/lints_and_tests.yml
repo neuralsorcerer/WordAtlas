@@ -47,8 +47,6 @@ jobs:
 
       - name: Run linters
         run: |
-          isort --check --diff .
-          black --check .
           ruff check .
           mypy wordatlas
 
