@@ -11,18 +11,26 @@ from nltk.corpus import wordnet as wn
 log = logging.getLogger(__name__)
 
 _CORPORA = ["wordnet", "omw-1.4"]
+_corpora_ready = False
 
 
 def _ensure_corpora() -> None:
+    global _corpora_ready
+    if _corpora_ready:
+        return
     missing: list[str] = []
     for c in _CORPORA:
         try:
             nltk_data.find(f"corpora/{c}")
         except LookupError:
             missing.append(c)
+    import warnings
     for c in missing:
         log.info("Downloading NLTK corpus: %s", c)
-        nltk.download(c, quiet=True)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            nltk.download(c, quiet=True)
+    _corpora_ready = True
 
 
 @lru_cache(maxsize=4096)
@@ -78,7 +86,9 @@ def expand_word(word: str) -> tuple[set[tuple[str, str]], set[tuple[str, str, st
             if p:
                 counts[p] = (counts.get(p) or 0) + 1
         if counts:
-            pos_infer = max(counts.items(), key=lambda kv: kv[1])[0]
+            max_c = max(counts.values())
+            best = [p for p, c in counts.items() if c == max_c]
+            pos_infer = sorted(best)[0]
 
     for s in syns:
         pos = str(getattr(s, "pos", lambda: "")())
@@ -91,8 +101,8 @@ def expand_word(word: str) -> tuple[set[tuple[str, str]], set[tuple[str, str, st
             # antonyms via lemma
             for ant in list(getattr(lemma, "antonyms", lambda: [])() or []):
                 ant_name = lemma_key(ant)
-                syn = getattr(ant, "synset", lambda: lambda: None)()
-                ant_pos = str(getattr(syn, "pos", lambda: "")())
+                ant_synset = getattr(ant, "synset", lambda: None)()
+                ant_pos = str(getattr(ant_synset, "pos", lambda: "")()) if ant_synset else ""
                 nodes.add((ant_name, ant_pos))
                 if ant_name != word:
                     edges.add((word, ant_name, "antonym"))

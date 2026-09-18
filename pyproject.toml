@@ -5,19 +5,18 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wordatlas"
-version = "0.1.1"
+version = "0.1.2"
 description = "Interactive semantic maps (WordNet) via CLI and web"
 authors = [{ name = "Soumyadip Sarkar" }]
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 license = {file = "LICENSE"}
 keywords = ["wordnet", "nlp", "graph", "fastapi", "cli", "cytoscape"]
 classifiers = [
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "License :: OSI Approved :: Apache Software License",
     "Environment :: Console",
     "Environment :: Web Environment",
@@ -70,7 +69,7 @@ select = ["E", "F", "I", "UP", "B"]
 
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.13"
 strict = true
 
 # Per-module overrides

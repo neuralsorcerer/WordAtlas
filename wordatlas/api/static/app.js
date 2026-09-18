@@ -152,7 +152,7 @@ async function loadGraph(word, depth) {
         id: n.id,
         label: n.label,
         pos: n.pos,
-        center: n.id === g.center,
+        center: String(n.id === g.center),
       },
     }));
     const edges = g.edges.map((e) => ({

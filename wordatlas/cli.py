@@ -52,7 +52,8 @@ def list_relations(
         "similar_to": set(),
     }
     for e in g.edges:
-        by_rel[e.relation].add(e.target)
+        if e.source == g.center:
+            by_rel[e.relation].add(e.target)
 
     table = Table(title=f"WordAtlas: {g.center} (depth={depth}, nodes={len(g.nodes)})")
     table.add_column("Relation")
@@ -137,7 +138,8 @@ def graph(
                     raise typer.BadParameter(
                         f"Unknown relation '{k}' in --rel-depth; allowed: {allowed_str}"
                     )
-                rel_depths_parsed[cast(Relation, k)] = max(0, int(v))
+                rel_key: Relation = k
+                rel_depths_parsed[rel_key] = max(0, int(v))
             except ValueError as err:
                 raise typer.BadParameter(
                     f"Invalid --rel-depth '{item}', expected relation:int"
@@ -239,24 +241,27 @@ def graph(
     console.print(f"[green]Wrote[/green] {written}")
 
     if open_after:
-        try:
-            import os
-            import platform
-            import webbrowser
+        import os
+        import platform
+        import subprocess
 
+        try:
             if platform.system() == "Windows":
                 startfile = getattr(os, "startfile", None)
                 if callable(startfile):
                     startfile(str(written))
+                else:
+                    subprocess.Popen(["start", "", str(written)], shell=True)
             elif platform.system() == "Darwin":
-                os.system(f"open '{written}'")
+                subprocess.Popen(["open", str(written)])
             else:
-                os.system(f"xdg-open '{written}' >/dev/null 2>&1 &")
+                subprocess.Popen(
+                    ["xdg-open", str(written)],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
         except Exception:
-            try:
-                webbrowser.open(str(written))
-            except Exception:
-                pass
+            pass
 
 
 @app.command()

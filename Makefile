@@ -14,7 +14,7 @@ test:
 
 lint:
 	ruff check .
-	typecheck
+	$(MAKE) typecheck
 
 format:
 	black .

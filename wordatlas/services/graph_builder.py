@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from collections import deque
+from collections import Counter, deque
 from typing import cast
 
 from wordatlas.config import settings
@@ -13,6 +13,36 @@ log = logging.getLogger(__name__)
 
 
 POS = str
+
+
+def _cap_key(pos: str) -> str:
+    """Normalize POS for cap checking — satellite adj 's' counts as 'a'."""
+    return "a" if pos == "s" else pos
+
+
+def _resolve_pos(nodes: set[tuple[str, str]]) -> dict[str, str]:
+    """Resolve multi-POS conflicts deterministically.
+
+    When a word appears in synsets with different POS tags (e.g. "run" as
+    both noun and verb), pick the *most frequent* POS across synsets.
+    Ties are broken alphabetically for stability.
+    """
+    counts: dict[str, Counter[str]] = {}
+    for nid, p in nodes:
+        if nid not in counts:
+            counts[nid] = Counter()
+        if p:
+            counts[nid][p] += 1
+    resolved: dict[str, str] = {}
+    for nid, ctr in counts.items():
+        if ctr:
+            # most_common returns [(pos, count), ...]; break ties alphabetically
+            top_count = ctr.most_common(1)[0][1]
+            candidates = sorted(p for p, c in ctr.items() if c == top_count)
+            resolved[nid] = candidates[0]
+        else:
+            resolved[nid] = ""
+    return resolved
 
 
 def build_graph(
@@ -32,7 +62,8 @@ def build_graph(
       relation is traversed, its remaining budget is decremented along that path.
       Relations not listed are unconstrained (subject only to overall depth).
     - pos_caps: optional per-POS cap for how many nodes of that POS may be
-      included (keys like 'n','v','a','s','r').
+      included (keys like 'n','v','a','s','r').  Satellite adjectives ('s')
+      are counted together with regular adjectives ('a') for cap purposes.
     - exclude: optional set of node ids (words) to exclude; the center is always
       included.
     """
@@ -47,8 +78,8 @@ def build_graph(
     expanded: set[str] = set()
     edges: set[tuple[str, str, RelationType]] = set()
 
-    # pos caps tracking
-    pos_counts: dict[POS, int] = {"n": 0, "v": 0, "a": 0, "s": 0, "r": 0}
+    # pos caps tracking — satellite adj 's' counts under 'a'
+    pos_counts: dict[POS, int] = {"n": 0, "v": 0, "a": 0, "r": 0}
     caps = pos_caps or {}
 
     # normalize exclude set
@@ -68,20 +99,20 @@ def build_graph(
             continue
         expanded.add(word)
 
-        nodes, new_edges_raw = expand_word(word)
-        # map id->pos for this expansion
-        pos_map: dict[str, str] = {nid: p for nid, p in nodes}
+        nodes_raw, new_edges_raw = expand_word(word)
+        # Resolve multi-POS words deterministically (most-frequent POS wins)
+        pos_map = _resolve_pos(nodes_raw)
 
         # Always add the center first to ensure POS caps include it and avoid set-order issues
         if center not in seen_nodes:
-            p_center = pos_map.get(center)
-            if p_center is not None:
-                seen_nodes[center] = p_center
-                if p_center in pos_counts:
-                    pos_counts[p_center] = pos_counts.get(p_center, 0) + 1
+            p_center = pos_map.get(center, "")
+            seen_nodes[center] = p_center
+            ck = _cap_key(p_center)
+            if ck in pos_counts:
+                pos_counts[ck] = pos_counts.get(ck, 0) + 1
 
         # include nodes subject to pos caps, exclude set, and max_nodes
-        for nid, p in nodes:
+        for nid in sorted(pos_map):  # sorted for deterministic order
             if nid == center:
                 continue
             if len(seen_nodes) >= max_nodes:
@@ -89,15 +120,17 @@ def build_graph(
             # exclusion
             if nid in excluded:
                 continue
-            # pos caps
+            p = pos_map[nid]
+            ck = _cap_key(p)
+            # pos caps — satellite adj 's' counts under 'a'
             if pos_caps:
-                cap_for = caps.get(p) if p is not None else None
-                if cap_for is not None and pos_counts.get(p, 0) >= cap_for:
+                cap_for = caps.get(ck) if ck else None
+                if cap_for is not None and pos_counts.get(ck, 0) >= cap_for:
                     continue
             if nid not in seen_nodes:
                 seen_nodes[nid] = p
-                if p in pos_counts:
-                    pos_counts[p] = pos_counts.get(p, 0) + 1
+                if ck in pos_counts:
+                    pos_counts[ck] = pos_counts.get(ck, 0) + 1
 
         # normalize and merge edges (we will filter by seen at the end)
         for s, t, r in new_edges_raw:
@@ -115,10 +148,11 @@ def build_graph(
             # exclusions and caps prevented adding, skip traversal
             if tgt != center and tgt in excluded:
                 continue
-            tpos = pos_map.get(tgt)
-            if pos_caps and tpos is not None:
-                cap_for = caps.get(tpos)
-                if cap_for is not None and pos_counts.get(tpos, 0) >= cap_for:
+            tpos = pos_map.get(tgt, "")
+            tck = _cap_key(tpos)
+            if pos_caps and tck:
+                cap_for = caps.get(tck)
+                if cap_for is not None and pos_counts.get(tck, 0) >= cap_for:
                     continue
             # relation budget check — only constrain relations present in the budget map
             next_budget: dict[RelationType, int] | None

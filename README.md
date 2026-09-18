@@ -175,7 +175,3 @@ See [LICENSE](LICENSE) for full license text.
 ## Acknowledgements
 
 - [WordNet by Princeton University](https://wordnet.princeton.edu/)
-- NLTK WordNet interface
-- FastAPI, Uvicorn
-- Cytoscape.js
-- Graphviz

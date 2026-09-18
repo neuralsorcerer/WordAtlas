@@ -8,7 +8,6 @@ from typing import Annotated, Any
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import ORJSONResponse
 from fastapi.staticfiles import StaticFiles
 from nltk import data as nltk_data
 
@@ -21,7 +20,7 @@ from wordatlas.services.wordnet_service import cache_info, clear_caches
 configure_logging(settings.log_level)
 log = logging.getLogger("wordatlas.api")
 
-app = FastAPI(title="WordAtlas", default_response_class=ORJSONResponse)
+app = FastAPI(title="WordAtlas")
 
 app.add_middleware(
     CORSMiddleware,
@@ -76,13 +75,21 @@ def api_graph(
     max_nodes: Annotated[int | None, Query(ge=10, le=2000)] = None,
     relation: Annotated[list[str] | None, Query()] = None,
 ) -> Graph:
+    _VALID_RELATIONS = {"synonym", "antonym", "hypernym", "hyponym", "similar_to"}
     try:
+        if relation:
+            invalid = [r for r in relation if r not in _VALID_RELATIONS]
+            if invalid:
+                allowed_str = ", ".join(sorted(_VALID_RELATIONS))
+                raise ValueError(
+                    f"Unknown relation(s): {', '.join(invalid)}; allowed: {allowed_str}"
+                )
         # fall back to settings when not supplied
         d = settings.default_depth if depth is None else depth
         m = settings.max_nodes if max_nodes is None else max_nodes
         g = build_graph(word, depth=d, max_nodes=m)
         if relation:
-            allowed = {r for r in relation}
+            allowed = set(relation)
             g.edges = [e for e in g.edges if e.relation in allowed]
         return g
     except ValueError as e:
