@@ -25,6 +25,7 @@ def _ensure_corpora() -> None:
         except LookupError:
             missing.append(c)
     import warnings
+
     for c in missing:
         log.info("Downloading NLTK corpus: %s", c)
         with warnings.catch_warnings():
